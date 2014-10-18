@@ -1,0 +1,7 @@
+name = Cambridge KIS Formatter
+description = Provides a field formatter for the KIS Unistats widget
+package = Cambridge
+
+core = 7.x
+
+version = "7.x-1.0"

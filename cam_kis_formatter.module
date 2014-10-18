@@ -1,0 +1,100 @@
+<?php
+
+/**
+ * @filesource cam_kis_formatter module
+ *
+ * Provides a field formatter to render KIS unistats widget.
+ */
+
+/**
+ * Implements hook_field_formatter_info().
+ */
+function cam_kis_formatter_field_formatter_info() {
+  return array(
+   'cam_kis_formatter_kis_widget' => array(
+     'label' => t('KIS Widget'),
+     'description' => t('Formatter for a Unistats KIS widget'),
+     'field types' => array('text'),
+     'multiple values' => FIELD_BEHAVIOR_DEFAULT,
+     'settings' => array(
+        'orientation' => 'vertical',
+      ),
+    ),
+  );
+}
+
+/**
+ * Implements hook_field_formatter_view().
+ * This code just passes straight through to a theme function.
+ */
+function cam_kis_formatter_field_formatter_view($entity_type, $entity, $field, $instance, $langcode, $items, $display) {
+  $elements = array();
+  foreach ($items as $delta => $item) {
+    $element = array('element' => $item, 'field' => $instance, 'display' => $display,);
+    $elements[$delta] = array(
+      '#markup' => theme('cam_kis_formatter_formatter_'. $display['type'], $element),
+    );
+  }
+  return $elements;
+}
+
+/**
+ * Implements hook_field_formatter_settings_summary().
+ */
+function cam_kis_formatter_field_formatter_settings_summary($field, $instance, $view_mode) {
+
+  $display = $instance['display'][$view_mode];
+  $settings = $display['settings'];
+  $summary = t('Orientation: @orientation', array(
+    '@orientation' => $settings['orientation'],
+    ));
+
+  return $summary;
+}
+
+/**
+ * Implements hook_field_formatter_settings_form().
+ */
+function cam_kis_formatter_field_formatter_settings_form($field, $instance, $view_mode, $form, &$form_state) {
+  $display = $instance['display'][$view_mode];
+  $settings = $display['settings'];
+
+  $element = array();
+
+  $element['orientation'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Orientation'),
+    '#default_value' => $settings['orientation'],
+    );
+
+  return $element;
+}
+
+/**
+ * Implements hook_theme().
+ */
+function cam_kis_formatter_theme() {
+  return array(
+    'cam_kis_formatter_formatter_cam_kis_formatter_kis_widget' => array(
+      'variables' => array('element' => NULL),
+    ),
+  );
+}
+
+/**
+ * Theme function for cam_kis_formatter_formatter_cam_kis_formatter_kis_widget.
+ */
+function theme_cam_kis_formatter_formatter_cam_kis_formatter_kis_widget($element) {
+
+  $kis_code = $element['element']['safe_value'];
+  $kis_orientation = $element['display']['settings']['orientation'];
+
+  if($kis_orientation == 'vertical') {
+    $content = '<iframe id="unistats-widget-frame" scrolling="no" src="http://widget.unistats.ac.uk/Widget/10007788/' . $kis_code . '/vertical/small/en-GB/Full Time" style="overflow: hidden; border: 0px none transparent; width: 190px; height: 500px;" title="Unistats KIS Widget"></iframe>';
+  }
+  else {
+    $content = '<iframe id="unistats-widget-frame" scrolling="no" src="http://widget.unistats.ac.uk/Widget/10007788/' .$kis_code . '/horizontal/small/en-GB/Full Time" style="overflow: hidden; border: 0px none transparent; width: 615px; height: 150px;" title="Unistats KIS Widget"></iframe>';
+  }
+
+  return $content;
+}
